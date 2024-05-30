@@ -2,7 +2,6 @@ import { ref } from 'vue'
 import { defineStore } from 'pinia'
 import axios from 'axios'
 
-//https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=[API_KEY]
 const apiKey = 'AIzaSyCX3BLdPNLbV7l_QJOEbKZlbA8zY5oncpM'
 
 export const useAuthStore = defineStore('auth', () => {
@@ -19,16 +18,17 @@ export const useAuthStore = defineStore('auth', () => {
 
   const loader = ref(false);
 
-  const signup = async (payload) => {
-
+  const auth = async (payload, type) => {
+    const stringURL = type === 'signup' ? 'signUp': 'signInWithPassword';
     error.value = '';
     loader.value = true;
 
     try{
-      let response = await axios.post(`https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${apiKey}`, {
+      let response = await axios.post(`https://identitytoolkit.googleapis.com/v1/accounts:${stringURL}?key=${apiKey}`, {
         ...payload,
         returnSecureToken: true
       });
+      console.log(response.data)
       userInfo.value = {
         token: response.data.idToken,
         email: response.data.email,
@@ -36,8 +36,7 @@ export const useAuthStore = defineStore('auth', () => {
         refreshToken: response.data.refreshToken,
         expiresIn: response.data.expiresIn
       }
-      loader.value = false;
-      console.log(response.data)
+
     }
     catch (err) {
       switch (err.response.data.error.message) {
@@ -47,10 +46,22 @@ export const useAuthStore = defineStore('auth', () => {
         case 'OPERATION_NOT_ALLOWED':
           error.value = 'Недостаточно прав для действия'
           break;
+        case 'EMAIL_NOT_FOUND':
+          error.value = 'Пользователь с таким Email не найден'
+          break;
+        case 'INVALID_PASSWORD':
+          error.value = 'Неверный пароль'
+          break;
+        default:
+          error.value = 'Что то пошло не так'
+          break;
       }
+      throw error.value;
+    }
+    finally {
       loader.value = false;
     }
   }
 
-  return { signup, userInfo, error, loader }
+  return { auth, userInfo, error, loader }
 })
