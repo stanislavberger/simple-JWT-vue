@@ -2,7 +2,7 @@ import { ref } from 'vue'
 import { defineStore } from 'pinia'
 import axios from 'axios'
 
-const apiKey = import.meta.VITE_API_KEY_FIREBASE;
+const apiKey = import.meta.env.VITE_API_KEY_FIREBASE;
 
 export const useAuthStore = defineStore('auth', () => {
 
@@ -28,7 +28,6 @@ export const useAuthStore = defineStore('auth', () => {
         ...payload,
         returnSecureToken: true
       });
-      console.log(response.data)
       userInfo.value = {
         token: response.data.idToken,
         email: response.data.email,
@@ -36,6 +35,11 @@ export const useAuthStore = defineStore('auth', () => {
         refreshToken: response.data.refreshToken,
         expiresIn: response.data.expiresIn
       }
+      localStorage.setItem('userTokens', JSON.stringify({
+        token: userInfo.value.token,
+        refreshToken: userInfo.value.refreshToken,
+        expiresIn: response.data.expiresIn
+      }))
 
     }
     catch (err) {

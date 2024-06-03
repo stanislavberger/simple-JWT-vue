@@ -4,6 +4,7 @@ import 'primeflex/primeflex.css'
 import { initializeApp } from "firebase/app";
 
 import PrimeVue from 'primevue/config';
+import './api/index';
 
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
