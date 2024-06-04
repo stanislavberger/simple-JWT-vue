@@ -67,5 +67,15 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
-  return { auth, userInfo, error, loader }
+  const logout = () => {
+    userInfo.value = {
+      token: '',
+      email: '',
+      userId: '',
+      refreshToken: '',
+      expiresIn: ''
+    }
+  }
+
+  return { auth, userInfo, error, loader, logout }
 })
